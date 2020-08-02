@@ -1,0 +1,216 @@
+//Using Studio Code, I created a Simon Says game in JavaScript. Please read the description for details
+
+var repeat;
+
+/* Building start screen */
+
+setScreen("start"); 
+var i = 0;
+
+// creating the effect of the start screen background changing color every second
+
+timedLoop(450, function() {
+  i++;
+  if (i==1) {
+    setProperty("start", "background-color", "white");
+  } else if (i==2) {
+    setProperty("start", "background-color", "red");
+  } else if (i==3) {
+    setProperty("start", "background-color", "yellow");
+  } else if (i==4) {
+    setProperty("start", "background-color", "blue");
+  } else {
+    setProperty("start", "background-color", "green");
+    i = 0;
+  }
+});
+
+//transitioning to the next screen, also stoping the intro music and starting the next screens background music
+
+playSound("sound://category_background/jazzy_beats.mp3", true);
+
+/*building actual game*/
+
+//the function below starts the actual game
+
+onEvent("label7", "click", function() {
+  stopSound("sound://category_background/jazzy_beats.mp3");
+  playSound("round-start-sound_hghrONg.mp3", false);
+  playSound("Arcade-song.mp3", true);
+  setScreen("Game");
+  
+  flashSequence(); 
+});
+
+//Creating the functions that enable the colored squares to brighten up and then go back to it's original color (lines 46 - 109)
+onEvent("blueButton", "mousedown", function(){
+  changeBlue();
+});
+function changeBlue() {
+  setProperty("blueButton", "background-color", "#00FFFF");
+}
+onEvent("blueButton", "mouseup",function(){
+  backBlue();
+  userAnswers.push(2);
+  checkAnswer();
+}); 
+
+function backBlue() {
+  setProperty("blueButton", "background-color", "blue");
+}
+onEvent("greenButton", "mousedown",function(){
+  changeGreen();
+}); 
+
+function changeGreen() {
+  setProperty("greenButton", "background-color", "#00FF00");
+}
+onEvent("greenButton", "mouseup", function(){
+ userAnswers.push(0);
+ checkAnswer();
+ backGreen();
+  
+});
+
+function backGreen() {
+  setProperty("greenButton", "background-color", "green");
+}
+onEvent("redButton", "mousedown", function(){
+  changeRed();
+});
+
+function changeRed() {
+  setProperty("redButton", "background-color", "pink");
+}
+onEvent("redButton", "mouseup", function(){
+  backRed();
+  userAnswers.push(1);
+  checkAnswer();
+}); 
+
+function backRed() {
+  setProperty("redButton", "background-color", "red");
+}
+onEvent("yellowButton", "mousedown",function(){
+  changeYellow(changeYellow);
+});
+
+function changeYellow() {
+  setProperty("yellowButton", "background-color", "#CCCC00");
+}
+onEvent("yellowButton", "mouseup", function(){
+  backYellow();
+  userAnswers.push(3);
+  checkAnswer();
+});
+
+function backYellow() {
+  setProperty("yellowButton", "background-color", "yellow");
+}
+
+//creating functions that use time to allow the color to change for a few seconds then go back(112-135)
+function simonRed(){
+  wait(300);
+  changeRed();
+  wait(300);
+  backRed();
+}
+function simonGreen(){
+  wait(300);
+  changeGreen();
+  wait(300);
+  backGreen();
+}
+function simonBlue(){
+  wait(300);
+  changeBlue();
+  wait(300);
+  backBlue();
+}
+function simonYellow(){
+  wait(300);
+  changeYellow();
+  wait(300);
+  backYellow();
+}
+
+//a time function, creating the wait time
+
+function wait(ms){
+  var startTime = getTime();
+  var currentTime = getTime();
+  while(currentTime - startTime < ms){
+  currentTime = getTime();
+  }
+}
+
+//arrays to store user answers, sequences, round numbers, etc to keep the game going
+
+var sequence = [];
+var userAnswers = [];
+var roundNumber = 1;
+var roundNum = 1;
+
+//function that keeps track of the game data, and user input
+
+function flashSequence(){
+  playSound("Ding-sound-effect.mp3", false);
+  
+  userAnswers = [];
+  sequence.push(randomNumber(0,3));
+  wait(1000);
+  for(var i = 0; i < roundNumber; i++){
+  playSound("sound://category_bell/hollow_bell_notification.mp3", false);var currentlight = sequence[i];
+  if(currentlight == 0) simonGreen();
+  if(currentlight == 1) simonRed();
+  if(currentlight== 2) simonBlue();
+  if(currentlight==3)simonYellow();
+
+}
+}
+
+// function that makes sure that the answers are correct
+
+function checkAnswer(){
+  var currentAnswerIndex = userAnswers.length -1;
+  var currentAnswer = userAnswers[currentAnswerIndex];
+  if (currentAnswer != sequence[currentAnswerIndex]){
+    gameOver();//wrong
+  }else if(currentAnswerIndex == sequence.length -1){
+    roundNumber++;
+    playSound("anime-wow-sound-effect.mp3", false);
+    roundNum++;
+    setProperty("textBox","text", "NEXT ROUND!");
+    wait(500);
+    setProperty("textBox","text","");
+    setProperty("round","text",roundNum);
+    flashSequence();
+    
+  }
+}
+
+//game over function
+
+function gameOver(){
+  stopSound("Call-of-Duty-Black-Ops---Dead-Ops-Arcade-song-Clockwork-Squares-James-McCawley.mp3");
+  playSound("sound://category_music/game_over_2.mp3", false);
+  setProperty("textBox","text","GAME OVER!");
+  wait(500);
+  setScreen("GameOver");
+  wait(500);
+  setScreen("screen2");
+  
+  
+}
+
+  onEvent("screen2","click",function(event){
+    setScreen("start");
+    roundNum = 1;
+    roundNumber = 1;
+    setProperty("round","text",roundNum);
+    setProperty("textBox","text","good luck");
+    sequence = [];
+    
+  });
+  
+
